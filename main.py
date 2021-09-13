@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from os import read
+from os import path, read
 from time import sleep
 from typing import Coroutine
 import numpy as np
@@ -26,7 +26,7 @@ class Robot():
 class Algorithm(): 
     def __init__(self):
         # self.N, self.MaxTips, self.Cost_c, self.city_map, self.T, self.D = self.get_data()
-        self.file = '03'
+        self.file = '01'
         self.N, self.MaxTips, self.Cost_c, self.city_map, self.T, self.D = self.get_data_from_file(self.file)
         self.orders = []
         self.order_iter = 0
@@ -40,7 +40,7 @@ class Algorithm():
         coord = self.check_spawn_point()
         self.order_iter = self.N+2
         robot = Robot(coord)
-        for i in range(0, 1):
+        for i in range(0, 4):
             self.get_new_orders_from_file(self.file)
             if robot.take_order is False: #go to the order
                 if robot.go_to_target is False:
@@ -48,11 +48,12 @@ class Algorithm():
                     robot.compute_path(self.city_map, goal)
                 robot.go_to_target = True
                 if robot.current_path.shape[0] > 60:
-                    self.generate_str_path(robot.current_path[:60])
+                    path_str = self.generate_str_path(robot.current_path[:60])
+                    print(path_str)
                     robot.clean_part_of_path(60)
-                    #generate string with path
                 else:
-                    #generate string with path
+                    path_str = self.generate_str_path(robot.current_path)
+                    print(path_str)
                     robot.position = goal 
                     robot.take_order = True
                     robot.go_to_target = False
@@ -62,9 +63,12 @@ class Algorithm():
                     robot.compute_path(self.city_map, goal)
                 robot.go_to_target = True
                 if robot.current_path.shape[0] > 60:
+                    path_str = self.generate_str_path(robot.current_path[:60])
+                    print(path_str)
                     robot.clean_part_of_path(60)
-                    #generate string with path
                 else:
+                    path_str = self.generate_str_path(robot.current_path)
+                    print(path_str)
                     robot.position = goal
                     robot.order_deliverd = True
                     robot.go_to_target = False
@@ -82,18 +86,18 @@ class Algorithm():
         #analize orders and do the job
         # a = 1
     def generate_str_path(self, path):
-        print(path.shape)
         path_str = ''
         for i in range(path.shape[0]-1):
             dif = path[i+1] - path[i]
             if dif[0] == 1:
-                path_str+='' 
+                path_str+='U' 
             if dif[0] == -1:
-                path_str+=''
+                path_str+='D'
             if dif[1] == 1:
-                path_str+=''
+                path_str+='R'
             if dif[1] == -1:
-                path_str+=''
+                path_str+='L'
+        return path_str
     def show_city(self):
         binary = self.city_map > 0
         plt.imshow(binary)
