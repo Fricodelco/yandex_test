@@ -26,7 +26,7 @@ class Robot():
 class Algorithm(): 
     def __init__(self):
         # self.N, self.MaxTips, self.Cost_c, self.city_map, self.T, self.D = self.get_data()
-        self.file = '01'
+        self.file = '06'
         self.N, self.MaxTips, self.Cost_c, self.city_map, self.T, self.D = self.get_data_from_file(self.file)
         self.orders = []
         self.order_iter = 0
@@ -40,45 +40,46 @@ class Algorithm():
         coord = self.check_spawn_point()
         self.order_iter = self.N+2
         robot = Robot(coord)
-        for i in range(0, 4):
+        for i in range(0, self.T):
+        # for i in range(0, 1):
             self.get_new_orders_from_file(self.file)
-            if robot.take_order is False: #go to the order
-                if robot.go_to_target is False:
-                    goal = (self.orders[0][0]-1, self.orders[0][1]-1)
-                    robot.compute_path(self.city_map, goal)
-                robot.go_to_target = True
-                if robot.current_path.shape[0] > 60:
-                    path_str = self.generate_str_path(robot.current_path[:60])
-                    print(path_str)
-                    robot.clean_part_of_path(60)
-                else:
-                    path_str = self.generate_str_path(robot.current_path)
-                    print(path_str)
-                    robot.position = goal 
-                    robot.take_order = True
-                    robot.go_to_target = False
-            else: #go to the end point
-                if robot.go_to_target is False:
-                    goal = (self.orders[0][2]-1, self.orders[0][3]-1)
-                    robot.compute_path(self.city_map, goal)
-                robot.go_to_target = True
-                if robot.current_path.shape[0] > 60:
-                    path_str = self.generate_str_path(robot.current_path[:60])
-                    print(path_str)
-                    robot.clean_part_of_path(60)
-                else:
-                    path_str = self.generate_str_path(robot.current_path)
-                    print(path_str)
-                    robot.position = goal
-                    robot.order_deliverd = True
-                    robot.go_to_target = False
-                    #generate string with path
-            if robot.order_deliverd is True: #order deliverd
-                robot.take_order = False
-                robot.order_deliverd = False
-                robot.busy = False
-                robot.orders_done += 1
-                self.orders.pop(0)
+            if len(self.orders) > 0:
+                if robot.take_order is False: #go to the order
+                    if robot.go_to_target is False:
+                        goal = (self.orders[0][0]-1, self.orders[0][1]-1)
+                        robot.compute_path(self.city_map, goal)
+                    robot.go_to_target = True
+                    if robot.current_path.shape[0] > 60:
+                        path_str = self.generate_str_path(robot.current_path[:61])
+                        print(path_str)
+                        robot.clean_part_of_path(60)
+                    else:
+                        path_str = self.generate_str_path(robot.current_path)
+                        robot.position = goal 
+                        robot.take_order = True
+                        robot.go_to_target = False
+                else: #go to the end point
+                    if robot.go_to_target is False:
+                        goal = (self.orders[0][2]-1, self.orders[0][3]-1)
+                        robot.compute_path(self.city_map, goal)
+                    robot.go_to_target = True
+                    if robot.current_path.shape[0] > 60:
+                        path_str = self.generate_str_path(robot.current_path[:61])
+                        print(path_str)
+                        robot.clean_part_of_path(60)
+                    else:
+                        path_str = self.generate_str_path(robot.current_path)
+                        print(path_str)
+                        robot.position = goal
+                        robot.order_deliverd = True
+                        robot.go_to_target = False
+                        #generate string with path
+                if robot.order_deliverd is True: #order deliverd
+                    robot.take_order = False
+                    robot.order_deliverd = False
+                    robot.busy = False
+                    robot.orders_done += 1
+                    self.orders.pop(0)
         print(robot.orders_done)
         print(self.count_of_orders)
                 # print(len(path))
@@ -90,13 +91,15 @@ class Algorithm():
         for i in range(path.shape[0]-1):
             dif = path[i+1] - path[i]
             if dif[0] == 1:
-                path_str+='U' 
+                path_str+='D' 
             if dif[0] == -1:
-                path_str+='D'
+                path_str+='U'
             if dif[1] == 1:
                 path_str+='R'
             if dif[1] == -1:
                 path_str+='L'
+            if dif[0] == 0 and dif[1] == 0:
+                path_str+='S'
         return path_str
     def show_city(self):
         binary = self.city_map > 0
